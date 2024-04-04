@@ -125,13 +125,17 @@ private fun LookAheadWithSimpleMovableContentPreview() {
 
 class ApproachLayoutModifierNode1() : ApproachLayoutModifierNode{
     @OptIn(ExperimentalAnimatableApi::class)
+    //placement때 위치를 알수있는 값
     private val offsetAnimation: DeferredTargetAnimation<IntOffset, AnimationVector2D> =
         DeferredTargetAnimation(IntOffset.VectorConverter)
-    override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
-        TODO("Not yet implemented")
-    }
+
+    override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean = true
 
     override fun Placeable.PlacementScope.isPlacementApproachComplete(lookaheadCoordinates: LayoutCoordinates): Boolean {
-        TODO("Not yet implemented")
+        val target: IntOffset = with() {
+            lookaheadScopeCoordinates.localLookaheadPositionOf(lookaheadCoordinates).round()
+        }
+        offsetAnimation.updateTarget(target, coroutineScope)
+        return offsetAnimation.isIdle
     }
 }
