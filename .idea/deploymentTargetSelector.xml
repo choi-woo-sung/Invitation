@@ -8,6 +8,9 @@
       <SelectionState runConfigName="LookAheadWithSimpleMovableContentPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="CardDeckActivityPreview">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
