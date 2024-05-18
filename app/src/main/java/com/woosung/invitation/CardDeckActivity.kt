@@ -2,23 +2,23 @@ package com.woosung.invitation
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun CardDeckActivity() {
     var showDetails by remember { mutableStateOf(true) }
-    var selectedCard by remember { mutableStateOf("") }
+    var selectedCard by remember { mutableStateOf<InvitationCard?>(null) }
 
     SharedTransitionLayout {
         AnimatedContent(
@@ -48,27 +48,32 @@ fun CardDeckActivity() {
                                 frontImage = it.image,
                                 sharedTransitionScope = this@SharedTransitionLayout,
                                 animatedVisibilityScope = this@AnimatedContent,
-                                onClick = { key ->
+                                onClick = {
                                     showDetails = false
-                                    selectedCard = key
+                                    selectedCard = it
                                 },
-                                key = idx.toString()
+                                key = it.key
                             )
                         }
                     }
                 }
             } else {
-                NormalCard(
-                    modifier = Modifier,
-                    isLocked = false,
-                    frontImage = R.drawable.img_card1_front,
-                    sharedTransitionScope = this@SharedTransitionLayout,
-                    animatedVisibilityScope = this@AnimatedContent,
-                    key = selectedCard,
-                    onClick = {
-                        showDetails = true
-                    }
-                )
+                selectedCard?.let { selectedCard ->
+                    CardDetail(
+                        modifier = Modifier,
+                        isLocked = selectedCard.isLocked,
+                        frontImage = selectedCard.image,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedVisibilityScope = this@AnimatedContent,
+                        key = selectedCard.key,
+                        onClick = {
+                            showDetails = true
+                        },
+                        onLockClicked = {
+                            selectedCard.isLocked = false
+                        }
+                    )
+                }
             }
         }
     }
@@ -84,10 +89,10 @@ fun NormalCard(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     key: String,
-    onClick: (key: String) -> Unit = {}
+    onClick: () -> Unit = {}
 ) {
     with(sharedTransitionScope) {
-        Box(
+        Column(
             modifier = modifier
                 .sharedElement(
                     rememberSharedContentState(key = key),
@@ -96,10 +101,12 @@ fun NormalCard(
         ) {
             if (isLocked) {
                 Image(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.clickable {
+                        onClick()
+                    },
                     painter = painterResource(id = R.drawable.img_back),
                     contentDescription = "카드 뒷면",
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 Image(
@@ -107,16 +114,62 @@ fun NormalCard(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            onClick(key)
+                            onClick()
                         },
                     contentDescription = "카드 앞면"
                 )
             }
         }
     }
-    if (isLocked) {
-        TextButton(onClick = { /*TODO*/ }) {
+}
 
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+fun CardDetail(
+    modifier: Modifier = Modifier,
+    isLocked: Boolean,
+    @DrawableRes frontImage: Int,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    key: String,
+    onClick: (key: String) -> Unit = {},
+    onLockClicked: () -> Unit = {}
+) {
+    Column {
+        with(sharedTransitionScope) {
+            Column(
+                modifier = modifier
+                    .sharedElement(
+                        rememberSharedContentState(key = key),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
+                    .clickable {
+                        onClick(key)
+                    }
+            ) {
+                if (isLocked) {
+                    Image(
+                        modifier = Modifier,
+                        painter = painterResource(id = R.drawable.img_back),
+                        contentDescription = "카드 뒷면",
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = frontImage),
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentDescription = "카드 앞면"
+                    )
+                }
+
+            }
+        }
+        if (isLocked) {
+            TextButton(onClick = onLockClicked) {
+                Text("카드를 열어보려면 클릭하세요")
+            }
         }
     }
 }
@@ -129,57 +182,74 @@ private fun CardDeckActivityPreview() {
 }
 
 
-sealed class InvitationCard(open val isLocked: Boolean = false, open val image: Int) {
+@Stable
+sealed class InvitationCard(
+    open val key: String,
+    open var isLocked: Boolean = false,
+    open val image: Int
+) {
     data class NormalCard(
-        override val isLocked: Boolean = false,
+        override val key: String,
+        override var isLocked: Boolean = false,
         @DrawableRes override val image: Int
-    ) : InvitationCard(isLocked, image)
+    ) : InvitationCard(key, isLocked, image)
 }
 
 
 object SampleCardDeck {
     val testCard = listOf<InvitationCard>(
         InvitationCard.NormalCard(
-            isLocked = false,
+            key = "1",
+            isLocked = true,
             image = R.drawable.img_card1_front,
         ),
         InvitationCard.NormalCard(
+            key = "2",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "3",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "4",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "5",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "6",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "7",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "8",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "9",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "10",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
         InvitationCard.NormalCard(
+            key = "11",
             isLocked = false,
             image = R.drawable.img_card1_front
         ),
