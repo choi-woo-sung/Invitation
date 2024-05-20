@@ -6,11 +6,15 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -24,9 +28,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -136,6 +142,18 @@ fun CardDetail(
     onClick: (key: String) -> Unit = {},
     onLockClicked: () -> Unit = {}
 ) {
+
+    var isCardFlipped by remember { mutableStateOf(isLocked) }
+
+    val rotateCardY by animateFloatAsState(
+        targetValue = if (isCardFlipped) 180f else 0f,
+        animationSpec = tween(durationMillis = 900, easing = EaseInOut),
+        label = ""
+    )
+    val zAxisDistance = 10f //distance between camera and Card
+
+
+
     Column {
         with(sharedTransitionScope) {
             Column(
@@ -146,11 +164,14 @@ fun CardDetail(
                     )
                     .clickable {
                         onClick(key)
-                    }
+                    }.graphicsLayer {
+                    rotationY = rotateCardY
+//                    cameraDistance = zAxisDistance
+                }
             ) {
-                if (isLocked) {
+                if (isCardFlipped || rotateCardY > 90) {
                     Image(
-                        modifier = Modifier,
+                        modifier = Modifier.size(width = 200.dp , height = 300.dp),
                         painter = painterResource(id = R.drawable.img_back),
                         contentDescription = "카드 뒷면",
                         contentScale = ContentScale.Crop
@@ -158,16 +179,18 @@ fun CardDetail(
                 } else {
                     Image(
                         painter = painterResource(id = frontImage),
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentDescription = "카드 앞면"
+                        modifier = Modifier.size(width = 200.dp , height = 300.dp),
+                        contentDescription = "카드 앞면",
+                        contentScale = ContentScale.Crop
                     )
                 }
 
             }
         }
         if (isLocked) {
-            TextButton(onClick = onLockClicked) {
+            TextButton(onClick = {
+                isCardFlipped = false
+            }) {
                 Text("카드를 열어보려면 클릭하세요")
             }
         }
