@@ -1,4 +1,4 @@
-//package com.woosung.invitation
+package com.woosung.invitation
 //
 //import android.os.Bundle
 //import androidx.activity.ComponentActivity
@@ -21,50 +21,59 @@
 //import androidx.compose.material3.Surface
 //import androidx.compose.material3.Text
 //import androidx.compose.runtime.Composable
-//import androidx.compose.runtime.getValue
-//import androidx.compose.runtime.movableContentOf
-//import androidx.compose.runtime.movableContentWithReceiverOf
-//import androidx.compose.runtime.mutableStateOf
-//import androidx.compose.runtime.remember
-//import androidx.compose.runtime.setValue
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.ExperimentalComposeUiApi
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.geometry.Offset
-//import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.layout.ApproachLayoutModifierNode
-//import androidx.compose.ui.layout.ApproachMeasureScope
-//import androidx.compose.ui.layout.LayoutCoordinates
-//import androidx.compose.ui.layout.LookaheadScope
-//import androidx.compose.ui.layout.Measurable
-//import androidx.compose.ui.layout.MeasureResult
-//import androidx.compose.ui.layout.Placeable
-//import androidx.compose.ui.node.ModifierNodeElement
-//import androidx.compose.ui.tooling.preview.Preview
-//import androidx.compose.ui.unit.Constraints
-//import androidx.compose.ui.unit.IntOffset
-//import androidx.compose.ui.unit.IntSize
-//import androidx.compose.ui.unit.dp
-//import androidx.compose.ui.unit.round
-//import com.woosung.invitation.ui.theme.InvitationTheme
-//
-//class MainActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-//        setContent {
-//            InvitationTheme {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.movableContentWithReceiverOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ApproachLayoutModifierNode
+import androidx.compose.ui.layout.ApproachMeasureScope
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
+import com.woosung.invitation.CardDeckActivity
+import com.woosung.invitation.ui.theme.InvitationTheme
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            InvitationTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 //                    Greeting(
 //                        name = "Android",
 //                        modifier = Modifier.padding(innerPadding)
 //                    )
-//                }
-//            }
-//        }
-//    }
-//}
-//
+                    CardDeckActivity()
+                }
+            }
+        }
+    }
+}
+
 //@Composable
 //fun Greeting(name: String, modifier: Modifier = Modifier) {
 //    Text(
@@ -72,7 +81,7 @@
 //        modifier = modifier
 //    )
 //}
-//
+
 //@Preview(showBackground = true)
 //@Composable
 //fun GreetingPreview() {

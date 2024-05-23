@@ -11,6 +11,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -151,10 +153,11 @@ fun CardDetail(
         label = ""
     )
     val zAxisDistance = 10f //distance between camera and Card
-
-
-
-    Column {
+    Column(
+        modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         with(sharedTransitionScope) {
             Column(
                 modifier = modifier
@@ -164,27 +167,28 @@ fun CardDetail(
                     )
                     .clickable {
                         onClick(key)
-                    }.graphicsLayer {
-                    rotationY = rotateCardY
+                    }
+                    .graphicsLayer {
+                        rotationY = rotateCardY
 //                    cameraDistance = zAxisDistance
-                }
+                    }
+                    .rotationEffect()
             ) {
                 if (isCardFlipped || rotateCardY > 90) {
                     Image(
-                        modifier = Modifier.size(width = 200.dp , height = 300.dp),
+                        modifier = Modifier.size(width = 300.dp, height = 500.dp),
                         painter = painterResource(id = R.drawable.img_back),
                         contentDescription = "카드 뒷면",
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Fit
                     )
                 } else {
                     Image(
                         painter = painterResource(id = frontImage),
-                        modifier = Modifier.size(width = 200.dp , height = 300.dp),
+                        modifier = Modifier.size(width = 300.dp, height = 500.dp),
                         contentDescription = "카드 앞면",
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Fit
                     )
                 }
-
             }
         }
         if (isLocked) {
