@@ -14,15 +14,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,11 +29,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -152,6 +158,9 @@ fun CardDetail(
         animationSpec = tween(durationMillis = 900, easing = EaseInOut),
         label = ""
     )
+    val rotationState = observeDeviceRotation()
+
+
     val zAxisDistance = 10f //distance between camera and Card
     Column(
         modifier.fillMaxSize(),
@@ -172,15 +181,17 @@ fun CardDetail(
                         rotationY = rotateCardY
 //                    cameraDistance = zAxisDistance
                     }
-                    .rotationEffect()
+                    .graphicsLayer {
+                        this.rotationX = rotationState.pitch
+                        this.rotationY = rotationState.roll
+                    }
             ) {
                 if (isCardFlipped || rotateCardY > 90) {
-                    Image(
-                        modifier = Modifier.size(width = 300.dp, height = 500.dp),
-                        painter = painterResource(id = R.drawable.img_back),
-                        contentDescription = "카드 뒷면",
-                        contentScale = ContentScale.Fit
-                    )
+                    Surface(
+                        modifier = Modifier
+                            .size(width = 300.dp, height = 500.dp)
+                            .hologramEffect(rotationState),
+                    ) {}
                 } else {
                     Image(
                         painter = painterResource(id = frontImage),
@@ -198,6 +209,42 @@ fun CardDetail(
                 Text("카드를 열어보려면 클릭하세요")
             }
         }
+    }
+}
+
+fun Modifier.hologramEffect(rotationState: RotationState) = composed {
+    val sampleHolographicColors = listOf(
+        Color(0xFF9FDAFF),
+        Color(0xFFFEF1A5),
+        Color(0xFFFBA1C9),
+        Color(0xFFAB90D3),
+        Color(0xFF9FDAFF),
+        Color(0xFFFBB466),
+    )
+
+    val degreeFraction = maxOf(abs(rotationState.pitch), abs(rotationState.roll))
+
+    drawWithContent {
+        drawRect(
+            brush = Brush.radialGradient(
+                colorStops = sampleHolographicColors.let {
+                    arrayOf(
+                        (0.0F + 0.1F/* * degreeFraction*/) to it[0],
+                        (0.2F + 0.1F /** degreeFraction*/) to it[1],
+                        (0.4F + 0.08F /** degreeFraction*/) to it[2],
+                        (0.6F + 0.08F /** degreeFraction*/) to it[3],
+                        (0.8F + 0.06F * degreeFraction) to it[4],
+                        (1.0F + 0.06F /** degreeFraction*/) to it[5],
+                    )
+                },
+                center = Offset(
+                    x = (size.width * 0.5F) + (size.width * 0.25F),
+                    y = (size.height * 0.4F) + (size.height * 0.2F)
+                ),
+                radius = (size.width * 0.75F) + (size.height * 0.6F),
+                tileMode = TileMode.Mirror
+            ),
+        )
     }
 }
 

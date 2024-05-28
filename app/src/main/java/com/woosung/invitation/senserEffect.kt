@@ -23,25 +23,10 @@ fun Modifier.rotationEffect() = composed {
 
     val rotationState = observeDeviceRotation()
 
-    // Use spring animation for smooth and natural movement
-    val animatedRotationX by animateFloatAsState(
-        targetValue = rotationState.pitch,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
-    val animatedRotationY by animateFloatAsState(
-        targetValue = rotationState.roll,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
 
     this.graphicsLayer {
-        this.rotationX = animatedRotationX
-        this.rotationY = animatedRotationY
+        this.rotationX = rotationState.pitch
+        this.rotationY = rotationState.roll
     }
 
 }
