@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
@@ -213,6 +215,9 @@ fun CardDetail(
 }
 
 fun Modifier.hologramEffect(rotationState: RotationState) = composed {
+
+
+
     val sampleHolographicColors = listOf(
         Color(0xFF9FDAFF),
         Color(0xFFFEF1A5),
@@ -222,9 +227,26 @@ fun Modifier.hologramEffect(rotationState: RotationState) = composed {
         Color(0xFFFBB466),
     )
 
+     val sampleHolographicMetalColors = listOf(
+        Color.White,
+        Color.Black,
+        Color.White,
+        Color.Black,
+        Color.White,
+        Color.Black,
+        Color.White,
+        Color.Black,
+        Color.White
+    )
+
     val degreeFraction = maxOf(abs(rotationState.pitch), abs(rotationState.roll))
 
     drawWithContent {
+        val pivot = Offset(
+            x = size.center.x,
+            y = size.height * 0.4F
+        )
+
         drawRect(
             brush = Brush.radialGradient(
                 colorStops = sampleHolographicColors.let {
@@ -233,7 +255,7 @@ fun Modifier.hologramEffect(rotationState: RotationState) = composed {
                         (0.2F + 0.1F /** degreeFraction*/) to it[1],
                         (0.4F + 0.08F /** degreeFraction*/) to it[2],
                         (0.6F + 0.08F /** degreeFraction*/) to it[3],
-                        (0.8F + 0.06F * degreeFraction) to it[4],
+                        (0.8F + 0.06F /** degreeFraction*/) to it[4],
                         (1.0F + 0.06F /** degreeFraction*/) to it[5],
                     )
                 },
@@ -245,6 +267,54 @@ fun Modifier.hologramEffect(rotationState: RotationState) = composed {
                 tileMode = TileMode.Mirror
             ),
         )
+
+
+        drawRect(
+            topLeft = Offset.Zero,
+            size = size,
+            brush = Brush.sweepGradient(
+                colorStops = sampleHolographicMetalColors.let {
+                    arrayOf(
+                        0.0F to it[0],
+                        (0.15F + (0.1F /** sweepFraction*/)) to it[1],
+                        (0.25F + (0.08F /** sweepFraction*/)) to it[2],
+                        (0.4F + (0.05F /** sweepFraction*/)) to it[3],
+                        (0.5F + (0.05F /** sweepFraction*/)) to it[4],
+                        (0.55F + (0.03F /** sweepFraction*/)) to it[5],
+                        (0.76F + (0.1F /** sweepFraction*/)) to it[6],
+                        (0.87F + (0.05F /** sweepFraction*/)) to it[7],
+                        1.0F to it[8],
+                    )
+                },
+                center = pivot
+            ),
+            alpha = 1.0F - (0.25F * (1.0F - degreeFraction)) /** state.pressFraction)*/,
+            blendMode = BlendMode.Difference
+        )
+
+        drawRect(
+            topLeft = Offset.Zero,
+            size = size,
+            brush = Brush.sweepGradient(
+                colorStops = sampleHolographicMetalColors.let {
+                    arrayOf(
+                        0.0F to it[0],
+                        (0.15F + (0.1F /** sweepFraction*/)) to it[1],
+                        (0.25F + (0.08F /** sweepFraction*/)) to it[2],
+                        (0.4F + (0.05F /** sweepFraction*/)) to it[3],
+                        (0.5F + (0.05F /** sweepFraction*/)) to it[4],
+                        (0.55F + (0.03F /** sweepFraction*/)) to it[5],
+                        (0.76F + (0.1F /** sweepFraction*/)) to it[6],
+                        (0.87F + (0.05F /** sweepFraction*/)) to it[7],
+                        1.0F to it[8],
+                    )
+                },
+                center = pivot
+            ),
+            alpha = 1.0F - (0.25F * (1.0F - degreeFraction)) /** state.pressFraction)*/,
+            blendMode = BlendMode.Screen
+        )
+
     }
 }
 
