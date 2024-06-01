@@ -58,37 +58,57 @@ fun CardDeckActivity() {
             if (it) {
                 LazyVerticalGrid(columns = GridCells.Fixed(5)) {
                     itemsIndexed(items = SampleCardDeck.testCard) { idx, it ->
-                        when (it) {
-                            is InvitationCard.NormalCard -> NormalCard(
-                                isLocked = it.isLocked,
-                                frontImage = it.image,
-                                sharedTransitionScope = this@SharedTransitionLayout,
-                                animatedVisibilityScope = this@AnimatedContent,
-                                onClick = {
-                                    showDetails = false
-                                    selectedCard = it
-                                },
-                                key = it.key
-                            )
-                        }
+                        NormalCard(
+                            isLocked = it.isLocked,
+                            frontImage = it.image,
+                            sharedTransitionScope = this@SharedTransitionLayout,
+                            animatedVisibilityScope = this@AnimatedContent,
+                            onClick = {
+                                showDetails = false
+                                selectedCard = it
+                            },
+                            key = it.key
+                        )
                     }
                 }
             } else {
                 selectedCard?.let { selectedCard ->
-                    CardDetail(
-                        modifier = Modifier,
-                        isLocked = selectedCard.isLocked,
-                        frontImage = selectedCard.image,
-                        sharedTransitionScope = this@SharedTransitionLayout,
-                        animatedVisibilityScope = this@AnimatedContent,
-                        key = selectedCard.key,
-                        onClick = {
-                            showDetails = true
-                        },
-                        onLockClicked = {
-                            selectedCard.isLocked = false
+                    when (selectedCard) {
+                        is InvitationCard.NormalCard -> {
+                            NormalCardDetail(
+                                modifier = Modifier,
+                                isLocked = selectedCard.isLocked,
+                                frontImage = selectedCard.image,
+                                sharedTransitionScope = this@SharedTransitionLayout,
+                                animatedVisibilityScope = this@AnimatedContent,
+                                key = selectedCard.key,
+                                onClick = {
+                                    showDetails = true
+                                },
+                                onLockClicked = {
+                                    selectedCard.isLocked = false
+                                }
+                            )
                         }
-                    )
+                        is InvitationCard.ThreeDCard -> {
+                            TreeDCardDetail(
+                                modifier = Modifier,
+                                isLocked = selectedCard.isLocked,
+                                frontImage = selectedCard.frontImage,
+                                backGroundImage = selectedCard.backGroundImage,
+                                sharedTransitionScope = this@SharedTransitionLayout,
+                                animatedVisibilityScope = this@AnimatedContent,
+                                key = selectedCard.key,
+                                onClick = {
+                                    showDetails = true
+                                },
+                                onLockClicked = {
+                                    selectedCard.isLocked = false
+                                }
+                            )
+                        }
+                    }
+
                 }
             }
         }
@@ -140,82 +160,9 @@ fun NormalCard(
 }
 
 
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Composable
-fun CardDetail(
-    modifier: Modifier = Modifier,
-    isLocked: Boolean,
-    @DrawableRes frontImage: Int,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    key: String,
-    onClick: (key: String) -> Unit = {},
-    onLockClicked: () -> Unit = {}
-) {
 
-    var isCardFlipped by remember { mutableStateOf(isLocked) }
-
-    val rotateCardY by animateFloatAsState(
-        targetValue = if (isCardFlipped) 180f else 0f,
-        animationSpec = tween(durationMillis = 900, easing = EaseInOut),
-        label = ""
-    )
-    val rotationState = observeDeviceRotation()
-
-
-    val zAxisDistance = 10f //distance between camera and Card
-    Column(
-        modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        with(sharedTransitionScope) {
-            Column(
-                modifier = modifier
-                    .sharedElement(
-                        rememberSharedContentState(key = key),
-                        animatedVisibilityScope = animatedVisibilityScope
-                    )
-                    .clickable {
-                        onClick(key)
-                    }
-                    .graphicsLayer {
-                        rotationY = rotateCardY
-//                    cameraDistance = zAxisDistance
-                    }
-                    .graphicsLayer {
-                        this.rotationX = rotationState.pitch
-                        this.rotationY = rotationState.roll
-                    }
-            ) {
-                if (isCardFlipped || rotateCardY > 90) {
-                    Surface(
-                        modifier = Modifier
-                            .size(width = 300.dp, height = 500.dp)
-                            .hologramEffect(rotationState),
-                    ) {}
-                } else {
-                    Image(
-                        painter = painterResource(id = frontImage),
-                        modifier = Modifier.size(width = 300.dp, height = 500.dp),
-                        contentDescription = "카드 앞면",
-                        contentScale = ContentScale.Fit
-                    )
-                }
-            }
-        }
-        if (isLocked) {
-            TextButton(onClick = {
-                isCardFlipped = false
-            }) {
-                Text("카드를 열어보려면 클릭하세요")
-            }
-        }
-    }
-}
 
 fun Modifier.hologramEffect(rotationState: RotationState) = composed {
-
 
 
     val sampleHolographicColors = listOf(
@@ -227,7 +174,7 @@ fun Modifier.hologramEffect(rotationState: RotationState) = composed {
         Color(0xFFFBB466),
     )
 
-     val sampleHolographicMetalColors = listOf(
+    val sampleHolographicMetalColors = listOf(
         Color.White,
         Color.Black,
         Color.White,
@@ -244,7 +191,7 @@ fun Modifier.hologramEffect(rotationState: RotationState) = composed {
     drawWithContent {
         val pivot = Offset(
             x = size.center.x,
-            y = size.height * 0.4F
+            y = size.height * 0.5F
         )
 
         drawRect(
@@ -252,11 +199,21 @@ fun Modifier.hologramEffect(rotationState: RotationState) = composed {
                 colorStops = sampleHolographicColors.let {
                     arrayOf(
                         (0.0F + 0.1F/* * degreeFraction*/) to it[0],
-                        (0.2F + 0.1F /** degreeFraction*/) to it[1],
-                        (0.4F + 0.08F /** degreeFraction*/) to it[2],
-                        (0.6F + 0.08F /** degreeFraction*/) to it[3],
-                        (0.8F + 0.06F /** degreeFraction*/) to it[4],
-                        (1.0F + 0.06F /** degreeFraction*/) to it[5],
+                        (0.2F + 0.1F
+                                /** degreeFraction*/
+                                ) to it[1],
+                        (0.4F + 0.08F
+                                /** degreeFraction*/
+                                ) to it[2],
+                        (0.6F + 0.08F
+                                /** degreeFraction*/
+                                ) to it[3],
+                        (0.8F + 0.06F
+                                /** degreeFraction*/
+                                ) to it[4],
+                        (1.0F + 0.06F
+                                /** degreeFraction*/
+                                ) to it[5],
                     )
                 },
                 center = Offset(
@@ -276,19 +233,35 @@ fun Modifier.hologramEffect(rotationState: RotationState) = composed {
                 colorStops = sampleHolographicMetalColors.let {
                     arrayOf(
                         0.0F to it[0],
-                        (0.15F + (0.1F /** sweepFraction*/)) to it[1],
-                        (0.25F + (0.08F /** sweepFraction*/)) to it[2],
-                        (0.4F + (0.05F /** sweepFraction*/)) to it[3],
-                        (0.5F + (0.05F /** sweepFraction*/)) to it[4],
-                        (0.55F + (0.03F /** sweepFraction*/)) to it[5],
-                        (0.76F + (0.1F /** sweepFraction*/)) to it[6],
-                        (0.87F + (0.05F /** sweepFraction*/)) to it[7],
+                        (0.15F + (0.1F
+                                /** sweepFraction*/
+                                )) to it[1],
+                        (0.25F + (0.08F
+                                /** sweepFraction*/
+                                )) to it[2],
+                        (0.4F + (0.05F
+                                /** sweepFraction*/
+                                )) to it[3],
+                        (0.5F + (0.05F
+                                /** sweepFraction*/
+                                )) to it[4],
+                        (0.55F + (0.03F
+                                /** sweepFraction*/
+                                )) to it[5],
+                        (0.76F + (0.1F
+                                /** sweepFraction*/
+                                )) to it[6],
+                        (0.87F + (0.05F
+                                /** sweepFraction*/
+                                )) to it[7],
                         1.0F to it[8],
                     )
                 },
                 center = pivot
             ),
-            alpha = 1.0F - (0.25F * (1.0F - degreeFraction)) /** state.pressFraction)*/,
+            alpha = 1.0F - (0.25F * (1.0F - degreeFraction))
+            /** state.pressFraction)*/
+            ,
             blendMode = BlendMode.Difference
         )
 
@@ -299,19 +272,35 @@ fun Modifier.hologramEffect(rotationState: RotationState) = composed {
                 colorStops = sampleHolographicMetalColors.let {
                     arrayOf(
                         0.0F to it[0],
-                        (0.15F + (0.1F /** sweepFraction*/)) to it[1],
-                        (0.25F + (0.08F /** sweepFraction*/)) to it[2],
-                        (0.4F + (0.05F /** sweepFraction*/)) to it[3],
-                        (0.5F + (0.05F /** sweepFraction*/)) to it[4],
-                        (0.55F + (0.03F /** sweepFraction*/)) to it[5],
-                        (0.76F + (0.1F /** sweepFraction*/)) to it[6],
-                        (0.87F + (0.05F /** sweepFraction*/)) to it[7],
+                        (0.15F + (0.1F
+                                /** sweepFraction*/
+                                )) to it[1],
+                        (0.25F + (0.08F
+                                /** sweepFraction*/
+                                )) to it[2],
+                        (0.4F + (0.05F
+                                /** sweepFraction*/
+                                )) to it[3],
+                        (0.5F + (0.05F
+                                /** sweepFraction*/
+                                )) to it[4],
+                        (0.55F + (0.03F
+                                /** sweepFraction*/
+                                )) to it[5],
+                        (0.76F + (0.1F
+                                /** sweepFraction*/
+                                )) to it[6],
+                        (0.87F + (0.05F
+                                /** sweepFraction*/
+                                )) to it[7],
                         1.0F to it[8],
                     )
                 },
                 center = pivot
             ),
-            alpha = 1.0F - (0.25F * (1.0F - degreeFraction)) /** state.pressFraction)*/,
+            alpha = 1.0F - (0.25F * (1.0F - degreeFraction))
+            /** state.pressFraction)*/
+            ,
             blendMode = BlendMode.Screen
         )
 
@@ -337,6 +326,15 @@ sealed class InvitationCard(
         override var isLocked: Boolean = false,
         @DrawableRes override val image: Int
     ) : InvitationCard(key, isLocked, image)
+
+
+    data class ThreeDCard(
+        override val key: String,
+        override var isLocked: Boolean = false,
+        @DrawableRes override val image: Int,
+        @DrawableRes val backGroundImage: Int,
+        @DrawableRes val frontImage: Int
+    ) : InvitationCard(key, isLocked, image)
 }
 
 
@@ -347,10 +345,12 @@ object SampleCardDeck {
             isLocked = true,
             image = R.drawable.img_card1_front,
         ),
-        InvitationCard.NormalCard(
+        InvitationCard.ThreeDCard(
             key = "2",
             isLocked = false,
-            image = R.drawable.img_card1_front
+            frontImage = R.drawable.char_image_1,
+            backGroundImage = R.drawable.background_image_1,
+            image = R.drawable.real_image_1
         ),
         InvitationCard.NormalCard(
             key = "3",
