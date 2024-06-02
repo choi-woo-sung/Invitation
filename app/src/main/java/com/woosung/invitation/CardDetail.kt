@@ -1,5 +1,6 @@
 package com.woosung.invitation
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -32,7 +34,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-
+val maxTranslation = 150.dp.value // 카드 크기에 기반한 적절한 이동 범위 설정
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun NormalCardDetail(
@@ -134,7 +136,7 @@ fun TreeDCardDetail(
 
     val zAxisDistance = 10f //distance between camera and Card
     Column(
-        modifier.fillMaxSize(),
+        modifier.fillMaxSize() ,
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -148,19 +150,15 @@ fun TreeDCardDetail(
                     .clickable {
                         onClick(key)
                     }
-                    .graphicsLayer {
-                        rotationY = rotateCardY
-//                    cameraDistance = zAxisDistance
-                    }
-                    .graphicsLayer {
-                        this.rotationX = rotationState.pitch
-                        this.rotationY = rotationState.roll
-                    }
+//                    .graphicsLayer {
+//                        rotationY = rotateCardY
+////                    cameraDistance = zAxisDistance
+//                    }
             ) {
                 if (isCardFlipped || rotateCardY > 90) {
                     Surface(
                         modifier = Modifier
-                            .size(width = 300.dp, height = 500.dp)
+                            .size(width = 300.dp, height = 400.dp)
                             .hologramEffect(rotationState),
                     ) {}
                 } else {
@@ -168,31 +166,36 @@ fun TreeDCardDetail(
                         modifier= Modifier.graphicsLayer {
                             transformOrigin = TransformOrigin(0.5f, 0.5f)
                             cameraDistance = 16.dp.value
+                            this.rotationX = rotationState.pitch
+                            this.rotationY = -rotationState.roll
                         }.align(Alignment.Center),
                         elevation = CardDefaults.elevatedCardElevation(0.dp),
                     ) {
                         Image(
                             painter = painterResource(id = backGroundImage),
-                            modifier = Modifier.size(width = 300.dp, height = 500.dp),
+                            modifier = Modifier.size(width = 300.dp, height = 400 .dp),
                             contentDescription = "카드 앞면",
                             contentScale = ContentScale.Crop
                         )
                     }
+//                    Log.d("tag","rotataionx = ${rotationState.pitch} , rotationY = ${rotationState.roll}")
 
                     Box(
                         modifier = Modifier
                             .graphicsLayer {
                                 transformOrigin = TransformOrigin(0.5f, 0.5f)
                                 cameraDistance = 16.dp.value
-                                translationX = -getTranslation(rotationState.pitch, 140.dp.value)
-                                translationY = -getTranslation(rotationState.roll, 140.dp.value)
+                                translationX = -rotationState.pitch
+                                translationY = -rotationState.roll
+                                this.rotationX = rotationState.pitch
+                                this.rotationY = -rotationState.roll
                             }
-                            .align(Alignment.Center),
+                            .align(Alignment.BottomCenter),
 //                        elevation = CardDefaults.elevatedCardElevation(0.dp),
                     ) {
                         Image(
                             painter = painterResource(id = frontImage),
-                            modifier = Modifier.size(width = 300.dp, height = 500.dp),
+                            modifier = Modifier.size(width = 250.dp, height = 250.dp),
                             contentDescription = "카드 앞면",
                             contentScale = ContentScale.Fit
                         )

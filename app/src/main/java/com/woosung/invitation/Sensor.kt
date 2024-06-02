@@ -17,6 +17,9 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun observeDeviceRotation(): RotationState {
 
+
+    val maxAngle = 50f // adjust for max angle
+
     val context = LocalContext.current
     val sm = context.getSystemService(SENSOR_SERVICE) as SensorManager
     val sensitivity = 180f // adjust for sensitivity
@@ -33,12 +36,13 @@ fun observeDeviceRotation(): RotationState {
                 if (hasCapturedInitialEvent) {
                     SensorManager.getRotationMatrixFromVector(current, event.values)
 
-                    val roll = -(initial[2] * current[0]
+                    val roll = (-(initial[2] * current[0]
                             + initial[5] * current[3]
-                            + initial[8] * current[6]) * sensitivity
-                    val pitch = -(initial[2] * current[1]
+                            + initial[8] * current[6]) * sensitivity).coerceIn(-maxAngle, maxAngle)
+                    val pitch = (-(initial[2] * current[1]
                             + initial[5] * current[4]
-                            + initial[8] * current[7]) * sensitivity
+                            + initial[8] * current[7]) * sensitivity).coerceIn(-maxAngle, maxAngle)
+
 
                     rotationState.value = RotationState(pitch, roll)
                 } else {
