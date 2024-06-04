@@ -34,6 +34,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+
 val maxTranslation = 150.dp.value // 카드 크기에 기반한 적절한 이동 범위 설정
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -164,10 +166,10 @@ fun TreeDCardDetail(
                 } else {
                     Card (
                         modifier= Modifier.graphicsLayer {
-                            transformOrigin = TransformOrigin(0.5f, 0.5f)
-                            cameraDistance = 16.dp.value
+//                            transformOrigin = TransformOrigin(0.5f, 0.5f)
+//                            cameraDistance = 16.dp.value
                             this.rotationX = rotationState.pitch
-                            this.rotationY = -rotationState.roll
+                            this.rotationY = rotationState.roll
                         }.align(Alignment.Center),
                         elevation = CardDefaults.elevatedCardElevation(0.dp),
                     ) {
@@ -183,12 +185,12 @@ fun TreeDCardDetail(
                     Box(
                         modifier = Modifier
                             .graphicsLayer {
-                                transformOrigin = TransformOrigin(0.5f, 0.5f)
-                                cameraDistance = 16.dp.value
-                                translationX = -rotationState.pitch
-                                translationY = -rotationState.roll
+//                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+//                                cameraDistance = 16.dp.value
+//                                translationX = -rotationState.pitch
+//                                translationY = -rotationState.roll
                                 this.rotationX = rotationState.pitch
-                                this.rotationY = -rotationState.roll
+                                this.rotationY = rotationState.roll
                             }
                             .align(Alignment.BottomCenter),
 //                        elevation = CardDefaults.elevatedCardElevation(0.dp),

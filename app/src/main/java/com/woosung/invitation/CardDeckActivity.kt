@@ -11,13 +11,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.Card
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -130,6 +128,7 @@ fun NormalCard(
     with(sharedTransitionScope) {
         Column(
             modifier = modifier
+                .size(200.dp, 100.dp)
                 .sharedElement(
                     rememberSharedContentState(key = key),
                     animatedVisibilityScope = animatedVisibilityScope
@@ -142,18 +141,22 @@ fun NormalCard(
                     },
                     painter = painterResource(id = R.drawable.img_back),
                     contentDescription = "카드 뒷면",
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.FillBounds
                 )
             } else {
-                Image(
-                    painter = painterResource(id = frontImage),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable {
-                            onClick()
-                        },
-                    contentDescription = "카드 앞면"
-                )
+                Card {
+
+                    Image(
+                        painter = painterResource(id = frontImage),
+                        modifier = Modifier
+                            .height(IntrinsicSize.Max)
+                            .clickable {
+                                onClick()
+                            },
+                        contentDescription = "카드 앞면",
+                        contentScale = ContentScale.FillBounds
+                    )
+                }
             }
         }
     }
@@ -355,47 +358,9 @@ object SampleCardDeck {
         InvitationCard.NormalCard(
             key = "3",
             isLocked = false,
-            image = R.drawable.img_card1_front
+            image = R.drawable.real_image_2
         ),
-        InvitationCard.NormalCard(
-            key = "4",
-            isLocked = false,
-            image = R.drawable.img_card1_front
-        ),
-        InvitationCard.NormalCard(
-            key = "5",
-            isLocked = false,
-            image = R.drawable.img_card1_front
-        ),
-        InvitationCard.NormalCard(
-            key = "6",
-            isLocked = false,
-            image = R.drawable.img_card1_front
-        ),
-        InvitationCard.NormalCard(
-            key = "7",
-            isLocked = false,
-            image = R.drawable.img_card1_front
-        ),
-        InvitationCard.NormalCard(
-            key = "8",
-            isLocked = false,
-            image = R.drawable.img_card1_front
-        ),
-        InvitationCard.NormalCard(
-            key = "9",
-            isLocked = false,
-            image = R.drawable.img_card1_front
-        ),
-        InvitationCard.NormalCard(
-            key = "10",
-            isLocked = false,
-            image = R.drawable.img_card1_front
-        ),
-        InvitationCard.NormalCard(
-            key = "11",
-            isLocked = false,
-            image = R.drawable.img_card1_front
-        ),
+
+
     )
 }

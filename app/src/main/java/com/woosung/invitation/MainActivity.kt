@@ -59,7 +59,7 @@ import com.woosung.invitation.ui.theme.InvitationTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         setContent {
             InvitationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
