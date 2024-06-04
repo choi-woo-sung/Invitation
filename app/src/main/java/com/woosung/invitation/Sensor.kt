@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 fun observeDeviceRotation(): RotationState {
 
 
-    val maxAngle = 50f // adjust for max angle
+    val maxAngle = 90f // adjust for max angle
 
     val context = LocalContext.current
     val sm = context.getSystemService(SENSOR_SERVICE) as SensorManager

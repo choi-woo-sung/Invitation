@@ -1,6 +1,5 @@
-package com.woosung.invitation
+package com.woosung.invitation.detail
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -14,10 +13,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,20 +26,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import com.woosung.invitation.getTranslation
+import com.woosung.invitation.hologramEffect
+import com.woosung.invitation.observeDeviceRotation
 
-val maxTranslation = 150.dp.value // 카드 크기에 기반한 적절한 이동 범위 설정
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun NormalCardDetail(
+fun TreeDCardDetail(
     modifier: Modifier = Modifier,
     isLocked: Boolean,
     @DrawableRes frontImage: Int,
+    @DrawableRes backGroundImage: Int,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     key: String,
@@ -67,7 +68,7 @@ fun NormalCardDetail(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         with(sharedTransitionScope) {
-            Column(
+            Box(
                 modifier = modifier
                     .sharedElement(
                         rememberSharedContentState(key = key),
@@ -76,28 +77,67 @@ fun NormalCardDetail(
                     .clickable {
                         onClick(key)
                     }
-                    .graphicsLayer {
-                        rotationY = rotateCardY
-//                    cameraDistance = zAxisDistance
-                    }
-                    .graphicsLayer {
-                        this.rotationX = rotationState.pitch
-                        this.rotationY = rotationState.roll
-                    }
             ) {
                 if (isCardFlipped || rotateCardY > 90) {
                     Surface(
                         modifier = Modifier
-                            .size(width = 300.dp, height = 500.dp)
+                            .size(width = 300.dp, height = 400.dp)
                             .hologramEffect(rotationState),
                     ) {}
                 } else {
-                    Image(
-                        painter = painterResource(id = frontImage),
-                        modifier = Modifier.size(width = 300.dp, height = 500.dp),
-                        contentDescription = "카드 앞면",
-                        contentScale = ContentScale.Fit
-                    )
+                    Card(
+                        modifier = Modifier
+                            .graphicsLayer {
+                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                                cameraDistance = 16.dp.value
+                                this.rotationX = rotationState.pitch
+                                this.rotationY = rotationState.roll
+                            }
+                            .align(Alignment.Center),
+                        elevation = CardDefaults.elevatedCardElevation(0.dp),
+                    ) {
+                        Box {
+                            Image(
+                                painter = painterResource(id = backGroundImage),
+                                modifier = Modifier.size(width = 300.dp, height = 400.dp),
+                                contentDescription = "카드 앞면",
+                                contentScale = ContentScale.Crop
+                            )
+
+                            Image(
+                                painter = painterResource(id = frontImage),
+                                modifier = Modifier
+                                    .size(width = 250.dp, height = 250.dp).
+                                        align(Alignment.BottomCenter)
+                                    .blur(
+                                        radius = 24.dp,
+                                        edgeTreatment = BlurredEdgeTreatment.Unbounded
+                                    ),
+                                contentDescription = "카드 앞면",
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .graphicsLayer {
+                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                                cameraDistance = 16.dp.value
+                                translationX = getTranslation(rotationState.pitch, 120f)
+                                translationY = getTranslation(rotationState.roll, 120f)
+                                this.rotationX = rotationState.pitch
+                                this.rotationY = rotationState.roll
+                            }
+                            .align(Alignment.BottomCenter),
+                    ) {
+                        Image(
+                            painter = painterResource(id = frontImage),
+                            modifier = Modifier.size(width = 250.dp, height = 250.dp),
+                            contentDescription = "카드 앞면",
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
             }
         }
@@ -108,15 +148,5 @@ fun NormalCardDetail(
                 Text("카드를 열어보려면 클릭하세요")
             }
         }
-    }
-}
-
-
-
-
-
-fun getTranslation(angle: Float, maxDistance: Float): Float {
-    return ((angle/90f) * maxDistance).also {
-        Log.d("transition" , "$angle , result = $it")
     }
 }

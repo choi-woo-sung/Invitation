@@ -6,9 +6,6 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,16 +13,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Card
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
@@ -35,11 +28,12 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.woosung.invitation.detail.ParallaxCardDetail
+import com.woosung.invitation.detail.TreeDCardDetail
 import kotlin.math.abs
 
 
@@ -88,6 +82,7 @@ fun CardDeckActivity() {
                                 }
                             )
                         }
+
                         is InvitationCard.ThreeDCard -> {
                             TreeDCardDetail(
                                 modifier = Modifier,
@@ -105,9 +100,28 @@ fun CardDeckActivity() {
                                 }
                             )
                         }
-                    }
 
+                        is InvitationCard.ParallaxCard -> {
+                            ParallaxCardDetail(
+                                modifier = Modifier,
+                                isLocked = selectedCard.isLocked,
+                                realImage = selectedCard.image,
+                                frontImage = selectedCard.frontImage,
+                                backGroundImage = selectedCard.backGroundImage,
+                                sharedTransitionScope = this@SharedTransitionLayout,
+                                animatedVisibilityScope = this@AnimatedContent,
+                                key = selectedCard.key,
+                                onClick = {
+                                    showDetails = true
+                                },
+                                onLockClicked = {
+                                    selectedCard.isLocked = false
+                                }
+                            )
+                        }
+                    }
                 }
+
             }
         }
     }
@@ -161,8 +175,6 @@ fun NormalCard(
         }
     }
 }
-
-
 
 
 fun Modifier.hologramEffect(rotationState: RotationState) = composed {
@@ -338,6 +350,14 @@ sealed class InvitationCard(
         @DrawableRes val backGroundImage: Int,
         @DrawableRes val frontImage: Int
     ) : InvitationCard(key, isLocked, image)
+
+    data class ParallaxCard(
+        override val key: String,
+        override var isLocked: Boolean = false,
+        @DrawableRes override val image: Int,
+        @DrawableRes val backGroundImage: Int,
+        @DrawableRes val frontImage: Int
+    ) : InvitationCard(key, isLocked, image)
 }
 
 
@@ -361,6 +381,14 @@ object SampleCardDeck {
             image = R.drawable.real_image_2
         ),
 
+        InvitationCard.ParallaxCard(
+            key = "4",
+            isLocked = false,
+            image = R.drawable.real_image_3,
+            backGroundImage = R.drawable.background_image_3,
+            frontImage = R.drawable.char_image_3
+        ),
 
-    )
+
+        )
 }
