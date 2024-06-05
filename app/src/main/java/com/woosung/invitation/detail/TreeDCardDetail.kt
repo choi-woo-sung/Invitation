@@ -9,11 +9,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
@@ -25,13 +22,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.woosung.invitation.getTranslation
 import com.woosung.invitation.hologramEffect
@@ -104,11 +104,30 @@ fun TreeDCardDetail(
                                 contentScale = ContentScale.Crop
                             )
 
+//                            Image(
+//                                painter = painterResource(id = frontImage),
+//                                modifier = Modifier
+//                                    .size(width = 250.dp, height = 250.dp)
+//                                    .align(Alignment.BottomCenter)
+//                                    .blur(
+//                                        radius = 24.dp,
+//                                        edgeTreatment = BlurredEdgeTreatment.Unbounded
+//                                    ),
+//                                contentDescription = "카드 앞면",
+//                                contentScale = ContentScale.Fit
+//                            )
+
                             Image(
                                 painter = painterResource(id = frontImage),
                                 modifier = Modifier
-                                    .size(width = 250.dp, height = 250.dp).
-                                        align(Alignment.BottomCenter)
+                                    .offset {
+                                        IntOffset(
+                                            x = -(rotationState.roll * 1.5).dp.roundToPx(),
+                                            y = (rotationState.pitch * 2).dp.roundToPx()
+                                        )
+                                    }
+                                    .size(width = 250.dp, height = 250.dp)
+                                    .align(Alignment.BottomCenter)
                                     .blur(
                                         radius = 24.dp,
                                         edgeTreatment = BlurredEdgeTreatment.Unbounded
@@ -119,33 +138,78 @@ fun TreeDCardDetail(
                         }
                     }
 
-                    Box(
+//                    Image(
+//                        painter = painterResource(id = frontImage),
+//                        modifier = Modifier
+//                            .offset {
+//                                IntOffset(
+//                                    x = -(rotationState.roll * 1.5).dp.roundToPx(),
+//                                    y = (rotationState.pitch * 2).dp.roundToPx()
+//                                )
+//                            }
+//                            .size(width = 250.dp, height = 250.dp)
+//                            .align(Alignment.BottomCenter)
+//                            .blur(
+//                                radius = 24.dp,
+//                                edgeTreatment = BlurredEdgeTreatment.Unbounded
+//                            ),
+//                        contentDescription = "카드 앞면",
+//                        contentScale = ContentScale.Fit
+//                    )
+
+
+                    Image(
+                        painter = painterResource(id = frontImage),
                         modifier = Modifier
                             .graphicsLayer {
-                                transformOrigin = TransformOrigin(0.5f, 0.5f)
-                                cameraDistance = 16.dp.value
-                                translationX = getTranslation(rotationState.pitch, 120f)
-                                translationY = getTranslation(rotationState.roll, 120f)
                                 this.rotationX = rotationState.pitch
                                 this.rotationY = rotationState.roll
                             }
-                            .align(Alignment.BottomCenter),
-                    ) {
-                        Image(
-                            painter = painterResource(id = frontImage),
-                            modifier = Modifier.size(width = 250.dp, height = 250.dp),
-                            contentDescription = "카드 앞면",
-                            contentScale = ContentScale.Fit
+                            .offset {
+                                IntOffset(
+                                    x = rotationState.roll.dp.roundToPx(),
+                                    y = -rotationState.pitch.dp.roundToPx()
+                                )
+                            }
+                            .width(250.dp)
+                            .height(300.dp)
+                            .align(Alignment.BottomCenter)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillHeight,
+                        alignment = BiasAlignment(
+                            horizontalBias = (rotationState.roll * 0.005).toFloat(),
+                            verticalBias = 0f,
                         )
-                    }
+                    )
+//                    Box(
+//                        modifier = Modifier
+//                            .graphicsLayer {
+//                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+//                                cameraDistance = 16.dp.value
+//                                translationX = getTranslation(rotationState.pitch, 120f)
+//                                translationY = getTranslation(rotationState.roll, 120f)
+//                                this.rotationX = rotationState.pitch
+//                                this.rotationY = rotationState.roll
+//                            }
+//                            .align(Alignment.BottomCenter),
+//                    ) {
+//                        Image(
+//                            painter = painterResource(id = frontImage),
+//                            modifier = Modifier.size(width = 250.dp, height = 250.dp),
+//                            contentDescription = "카드 앞면",
+//                            contentScale = ContentScale.Fit
+//                        )
+//                    }
+//                }
                 }
             }
-        }
-        if (isLocked) {
-            TextButton(onClick = {
-                isCardFlipped = false
-            }) {
-                Text("카드를 열어보려면 클릭하세요")
+            if (isLocked) {
+                TextButton(onClick = {
+                    isCardFlipped = false
+                }) {
+                    Text("카드를 열어보려면 클릭하세요")
+                }
             }
         }
     }
