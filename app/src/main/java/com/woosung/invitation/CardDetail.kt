@@ -9,6 +9,7 @@ import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -29,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -36,7 +40,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 
-val maxTranslation = 150.dp.value // 카드 크기에 기반한 적절한 이동 범위 설정
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun NormalCardDetail(
@@ -86,18 +89,25 @@ fun NormalCardDetail(
                     }
             ) {
                 if (isCardFlipped || rotateCardY > 90) {
-                    Surface(
+                    Box(
                         modifier = Modifier
                             .size(width = 300.dp, height = 500.dp)
-                            .hologramEffect(rotationState),
+                            .clip(shape = RoundedCornerShape(12.dp))
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .hologramEffect(rotationState, true),
                     ) {}
                 } else {
-                    Image(
-                        painter = painterResource(id = frontImage),
-                        modifier = Modifier.size(width = 300.dp, height = 500.dp),
-                        contentDescription = "카드 앞면",
-                        contentScale = ContentScale.Fit
-                    )
+                    Card {
+                        Image(
+                            painter = painterResource(id = frontImage),
+                            modifier = Modifier.size(width = 300.dp, height = 500.dp),
+                            contentDescription = "카드 앞면",
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
             }
         }
@@ -112,11 +122,8 @@ fun NormalCardDetail(
 }
 
 
-
-
-
 fun getTranslation(angle: Float, maxDistance: Float): Float {
-    return ((angle/90f) * maxDistance).also {
-        Log.d("transition" , "$angle , result = $it")
+    return ((angle / 90f) * maxDistance).also {
+        Log.d("transition", "$angle , result = $it")
     }
 }
